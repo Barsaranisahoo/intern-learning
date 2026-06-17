@@ -81,7 +81,7 @@ def main() -> None:
 			q, a = random.choice(QUOTES)
 
 	print(f"\n{q}\n— {a}")
-
+print("TEST FILE 1")
 
 if __name__ == "__main__":
 	main()
