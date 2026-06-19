@@ -17,3 +17,13 @@ This internship is focused on building real-world development skills through han
 - Created GitHub repository
 - Learned Git branching
 - Practiced commits and push workflow
+## Day 3 Update
+Created CLI To-Do App using Python  
+Learned file handling and basic command-line operations  
+Practiced Git commit and push workflow  
+
+## Day 4 Update
+Built Notes App using React (Vite)  
+Learned useState for managing notes  
+Implemented add and delete functionality  
+Practiced frontend state management
