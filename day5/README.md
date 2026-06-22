@@ -53,5 +53,5 @@ http://localhost:8000/about
 - Built a FastAPI backend API and Dockerized it
 - Created `/about` endpoint returning JSON response
 - Learned FastAPI routing and basic API development
-- Containerized application using Docker and understood port mapping
+- Containerized application using Docker and understood port mapping...
 
