@@ -4,23 +4,30 @@ function App() {
   const [notes, setNotes] = useState([]);
   const [input, setInput] = useState("");
 
+  console.log("Notes:", notes);
+
   const addNote = () => {
-    if (!input.trim()) return;
+    console.log("Button clicked");
 
-    setNotes([
-      ...notes,
-      {
-        id: Date.now(),
-        text: input,
-      },
-    ]);
+    if (!input.trim()) {
+      console.log("Input is empty");
+      return;
+    }
 
+    const newNote = {
+      id: Date.now(),
+      text: input,
+    };
+
+    console.log("New note:", newNote);
+
+    setNotes([...notes, newNote]);
     setInput("");
   };
 
   const deleteNote = (id) => {
-  setNotes((prev) => prev.filter((note) => note.id !== id));
-};
+    setNotes(notes.filter((note) => note.id !== id));
+  };
 
   return (
     <div>
