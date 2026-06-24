@@ -34,3 +34,19 @@ Practiced frontend state management
 - Created `/about` endpoint returning JSON response  
 - Learned FastAPI routing and basic API development  
 - Containerized application using Docker and understood port mapping  
+
+## Day 6 Update – AI Use Cases
+
+- Researched 10 AI use cases in engineering domains
+- Mapped each use case to AI capability (Text, Code, Vision, Extraction, Agent)
+- Defined input and output for all use cases
+- Selected **Resume Screening** as the first project to build
+- Wrote justification for choosing Resume Screening
+
+### Selected Project:
+- Resume Screening AI System
+- Input: Resume + Job Description
+- Output: Match score, matched skills, missing skills, recommendation
+
+### Learning:
+- Learned how real-world problems map to AI solutions
