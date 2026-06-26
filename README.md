@@ -50,3 +50,20 @@ Practiced frontend state management
 
 ### Learning:
 - Learned how real-world problems map to AI solutions
+
+## Day 7 – Prompt Library
+
+Built a library of production-ready AI prompts for:
+
+- Resume bullet generation
+- Document summarization (JSON)
+- Meeting action item extraction
+- Error message rewriting
+- Professional email generation
+
+Each prompt includes:
+- System Message
+- User Template
+- Example Output
+
+The resume and document summary prompts also include **v1 vs v2** improvements.
