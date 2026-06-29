@@ -67,3 +67,12 @@ Each prompt includes:
 - Example Output
 
 The resume and document summary prompts also include **v1 vs v2** improvements.
+
+## Day 8 Update
+
+Built FastAPI backend with MySQL database integration
+Implemented full CRUD operations (Create, Read, Update, Delete)
+Created REST APIs for employee/user management
+Tested all endpoints using Swagger UI (/docs)
+Learned FastAPI routing and database connectivity workflow
+Practiced backend API development and debugging
