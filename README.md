@@ -68,11 +68,23 @@ Each prompt includes:
 
 The resume and document summary prompts also include **v1 vs v2** improvements.
 
-## Day 8 Update
+## Day8 Update
 
-Built FastAPI backend with MySQL database integration
-Implemented full CRUD operations (Create, Read, Update, Delete)
-Created REST APIs for employee/user management
-Tested all endpoints using Swagger UI (/docs)
-Learned FastAPI routing and database connectivity workflow
-Practiced backend API development and debugging
+- Loaded Gemini API key from `.env`
+- Added `.env.example` for configuration
+- Read input document from a file path argument
+- Used a summarization prompt from the prompt library
+- Called the Gemini API to generate a summary
+- Parsed and printed structured JSON fields
+- Added error handling for:
+  - Missing API key
+  - Failed API requests
+
+  ## Day9 Update
+
+- Read a document from `document.txt`
+- Chunked the document into configurable chunks
+- Generated embeddings using Gemini Embedding API
+- Saved chunks and embeddings to `chunks_embeddings.json`
+- Retrieved the top 3 most similar chunks using cosine similarity
+- Generated concise answers using Gemini 2.5 Flash based on the retrieved context
