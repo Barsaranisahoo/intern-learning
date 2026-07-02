@@ -88,3 +88,33 @@ The resume and document summary prompts also include **v1 vs v2** improvements.
 - Saved chunks and embeddings to `chunks_embeddings.json`
 - Retrieved the top 3 most similar chunks using cosine similarity
 - Generated concise answers using Gemini 2.5 Flash based on the retrieved context
+
+  ## Day 10 - Project Scaffold
+- FastAPI setup completed
+- /health endpoint implemented
+- /chat endpoint (echo version)
+- Basic API structure tested
+
+---
+
+##  Day 11 - Backend + Database
+- FastAPI + PostgreSQL integration
+- SQLAlchemy models (Conversation, Message)
+- UUID-based conversation tracking
+- Messages stored in database
+- Relationship between tables implemented
+
+---
+
+## 🧪 Testing
+- Tested using Swagger UI (/docs)
+- Verified data insertion using PostgreSQL (psql)
+- Checked tables in pgAdmin
+
+---
+
+## ⚙️ Tech Stack
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Pydantic
