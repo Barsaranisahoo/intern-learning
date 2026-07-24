@@ -1,5 +1,6 @@
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends, Form
 from sqlalchemy.orm import Session
+from uuid import UUID
 from app.schemas import UploadResponse
 from ..database import get_db
 from ..models import Conversation, Message, Document, Chunk
@@ -18,6 +19,7 @@ router = APIRouter(
 @router.post("/upload" , response_model=UploadResponse)
 async def upload_document(
     file: UploadFile = File(...),
+    conversation_id: str | None = Form(None),
     db: Session = Depends(get_db)
 ):
 
@@ -121,19 +123,41 @@ async def upload_document(
 
 
 
-    # Create conversation for document
-    conversation = Conversation(
-        document_id=document.id
-    )
+    # Attach document to existing conversation if provided
+    if conversation_id:
 
+        conversation = (
+            db.query(Conversation)
+            .filter(Conversation.id == UUID(conversation_id))
+            .first()
+        )
 
-    db.add(conversation)
+        if conversation:
 
-    db.commit()
+            conversation.document_id = document.id
 
-    db.refresh(conversation)
+            db.commit()
+            db.refresh(conversation)
 
+        else:
 
+            conversation = Conversation(
+                document_id=document.id
+            )
+
+            db.add(conversation)
+            db.commit()
+            db.refresh(conversation)
+
+    else:
+
+        conversation = Conversation(
+            document_id=document.id
+        )
+
+        db.add(conversation)
+        db.commit()
+        db.refresh(conversation)
 
     return UploadResponse(
     message="File uploaded successfully",

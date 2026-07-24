@@ -511,3 +511,9 @@ body{
   cursor:not-allowed;
 
 }
+.message-time {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 4px;
+  margin-bottom: 6px;
+}

@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 from pydantic import BaseModel
-
+from datetime import datetime
 
 class ChatRequest(BaseModel):
     message: str
@@ -14,9 +14,11 @@ class ResponseMessage(BaseModel):
     content: str
 
 
+
 class ChatResponse(BaseModel):
     reply: str
     conversation_id: UUID
+    created_at: datetime
 
 
 class UploadResponse(BaseModel):

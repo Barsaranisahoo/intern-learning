@@ -156,28 +156,31 @@ Answer:
 
             conversation_id = conversation.id
 
-        db.add(
-            Message(
-                conversation_id=conversation_id,
-                role="user",
-                content=message
-            )
-        )
+        user_message = Message(
+        conversation_id=conversation_id,
+        role="user",
+       content=message
+)
 
-        db.add(
-            Message(
-                conversation_id=conversation_id,
-                role="assistant",
-                content=reply
-            )
-        )
+        db.add(user_message)
+
+        assistant_message = Message(
+        conversation_id=conversation_id,
+        role="assistant",
+        content=reply
+)
+
+        db.add(assistant_message)
 
         db.commit()
 
+        db.refresh(assistant_message)
+
         return ChatResponse(
-            reply=reply,
-            conversation_id=conversation_id
-        )
+        reply=reply,
+        conversation_id=conversation_id,
+        created_at=assistant_message.created_at
+)
 
     except HTTPException:
         raise

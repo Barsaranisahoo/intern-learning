@@ -48,6 +48,9 @@ export default function Chat({
    const fileInputRef =
   useRef<HTMLInputElement | null>(null);
 
+  const messagesEndRef =
+  useRef<HTMLDivElement | null>(null);
+
 
 
   // Load previous conversation
@@ -80,7 +83,9 @@ if (!conversationId) {
 
             role: msg.role,
 
-            content: msg.content
+            content: msg.content,
+
+            created_at: msg.created_at
 
           }))
 
@@ -106,6 +111,16 @@ if (!conversationId) {
 
   }, [conversationId]);
 
+  useEffect(() => {
+
+  messagesEndRef.current?.scrollIntoView({
+
+    behavior: "smooth"
+
+  });
+
+}, [messages, loading, summarizing]);
+
 
 
 
@@ -130,7 +145,8 @@ if (!conversationId) {
 
       {
         role: "user",
-        content: userText
+        content: userText,
+        created_at: new Date().toISOString()
       }
 
     ]);
@@ -156,13 +172,15 @@ if (!conversationId) {
 
       const response = await sendMessage({
 
-        message: userText,
+  message: userText,
 
-        conversation_id: conversationId,
+  conversation_id: conversationId,
 
-        document_id: documentId
+  document_id: documentId,
 
-      });
+  strict_document: !!documentId
+
+});
 
 
 
@@ -183,7 +201,8 @@ if (!conversationId) {
 
         {
           role: "assistant",
-          content: response.reply
+          content: response.reply,
+          created_at: response.created_at
         }
 
       ]);
@@ -209,7 +228,8 @@ if (!conversationId) {
 
         {
           role: "assistant",
-          content: "Something went wrong."
+          content: "Something went wrong.",
+          created_at: new Date().toISOString()
         }
 
       ]);
@@ -248,7 +268,10 @@ if (!conversationId) {
     try {
 
 
-      const result = await uploadDocument(file);
+    const result = await uploadDocument(
+    file,
+    conversationId
+);
 
 
 
@@ -276,6 +299,10 @@ if (!conversationId) {
 
 
      setDocumentId(result.document_id);
+     if (!conversationId) {
+    setConversationId(result.conversation_id);
+}
+     
 
 
 
@@ -342,7 +369,8 @@ const handleSummarize = async () => {
 
       {
         role: "assistant",
-        content: "Please upload a document first."
+        content: "Please upload a document first.",
+        created_at: new Date().toISOString()
       }
 
     ]);
@@ -355,7 +383,10 @@ const handleSummarize = async () => {
 
     setSummarizing(true);
 
-    const result = await summarizeDocument(documentId);
+    const result = await summarizeDocument(
+    documentId,
+    conversationId!
+);
     console.log("SUMMARY RESPONSE:", result);
 
     const text =
@@ -368,7 +399,8 @@ const handleSummarize = async () => {
 
       {
         role: "assistant",
-        content: text
+        content: text,
+        created_at: new Date().toISOString()
       }
 
     ]);
@@ -383,7 +415,8 @@ const handleSummarize = async () => {
 
       {
         role: "assistant",
-        content: "Failed to summarize the document."
+        content: "Failed to summarize the document.",
+        created_at: new Date().toISOString()
       }
 
     ]);
@@ -396,6 +429,14 @@ const handleSummarize = async () => {
 
   }
 
+};
+const copyMessage = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("Message copied!");
+  } catch (error) {
+    console.error("Copy failed:", error);
+  }
 };
 
 
@@ -447,30 +488,56 @@ const handleSummarize = async () => {
 
 
         {
-          messages.map((msg, index) => (
+  messages.map((msg, index) => (
 
-            <div
+    <div
 
-              key={index}
+      key={index}
 
-              className={
-                msg.role === "user"
-                ?
-                "message user-message"
-                :
-                "message assistant-message"
-              }
+      className={
+        msg.role === "user"
+        ?
+        "message user-message"
+        :
+        "message assistant-message"
+      }
 
-            >
+    >
 
-              {msg.content}
+      {msg.content}
 
-            </div>
+      {msg.created_at && (
+  <div className="message-time">
+    {new Date(
+      msg.created_at.endsWith("Z")
+        ? msg.created_at
+        : msg.created_at + "Z"
+    ).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}
+  </div>
+)}
+
+      {msg.role === "assistant" && (
+        <button
+          onClick={() => copyMessage(msg.content)}
+          style={{
+            display: "block",
+            marginTop: "8px",
+            cursor: "pointer"
+          }}
+        >
+          📋 Copy
+        </button>
+      )}
 
 
-          ))
+    </div>
 
-        }
+
+  ))
+}
 
 
 
@@ -483,7 +550,7 @@ const handleSummarize = async () => {
     </div>
   )
 }
-
+   <div ref={messagesEndRef}></div>
 
 
       </div>
