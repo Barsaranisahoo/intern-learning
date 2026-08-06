@@ -18,6 +18,11 @@ class Conversation(Base):
         default=uuid.uuid4
     )
 
+    title = Column(
+        String,
+        nullable=True
+    )
+
     created_at = Column(
         DateTime,
         default=datetime.utcnow
@@ -29,12 +34,17 @@ class Conversation(Base):
         nullable=True
     )
 
-
     messages = relationship(
         "Message",
-        back_populates="conversation"
+        back_populates="conversation",
+        cascade="all, delete"
     )
 
+    images = relationship(
+        "Image",
+        back_populates="conversation",
+        cascade="all, delete"
+    )
 
     document = relationship(
         "Document",
@@ -42,18 +52,15 @@ class Conversation(Base):
     )
 
 
-
 class Message(Base):
 
     __tablename__ = "messages"
-
 
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4
     )
-
 
     conversation_id = Column(
         UUID(as_uuid=True),
@@ -61,33 +68,30 @@ class Message(Base):
         nullable=False
     )
 
-
     role = Column(
         String,
         nullable=False
     )
-
 
     content = Column(
         Text,
         nullable=False
     )
 
-
     created_at = Column(
         DateTime,
         default=datetime.utcnow
     )
 
-
     conversation = relationship(
         "Conversation",
         back_populates="messages"
     )
-class Document(Base):
 
-    __tablename__ = "documents"
 
+class Image(Base):
+
+    __tablename__ = "images"
 
     id = Column(
         UUID(as_uuid=True),
@@ -95,6 +99,42 @@ class Document(Base):
         default=uuid.uuid4
     )
 
+    conversation_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("conversations.id"),
+        nullable=False
+    )
+
+    filename = Column(
+        String,
+        nullable=False
+    )
+
+    file_path = Column(
+        String,
+        nullable=False
+    )
+
+    uploaded_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    conversation = relationship(
+        "Conversation",
+        back_populates="images"
+    )
+
+
+class Document(Base):
+
+    __tablename__ = "documents"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
 
     filename = Column(
         String,
@@ -102,12 +142,10 @@ class Document(Base):
         nullable=False
     )
 
-
     uploaded_at = Column(
         DateTime,
         default=datetime.utcnow
     )
-
 
     chunks = relationship(
         "Chunk",
@@ -115,16 +153,15 @@ class Document(Base):
         cascade="all, delete"
     )
 
-
     conversations = relationship(
         "Conversation",
         back_populates="document"
     )
 
+
 class Chunk(Base):
 
     __tablename__ = "chunks"
-
 
     id = Column(
         UUID(as_uuid=True),
@@ -132,32 +169,26 @@ class Chunk(Base):
         default=uuid.uuid4
     )
 
-
     document_id = Column(
         UUID(as_uuid=True),
         ForeignKey("documents.id"),
         nullable=False
     )
 
-
     chunk_index = Column(
         Integer,
         nullable=False
     )
-
 
     content = Column(
         Text,
         nullable=False
     )
 
-
-    # Gemini embedding vector
     embedding = Column(
         Vector(768),
         nullable=False
     )
-
 
     document = relationship(
         "Document",

@@ -22,21 +22,17 @@ def retrieve_relevant_chunks(
         query_embedding
     ).label("distance")
 
-
     query_result = db.query(
         Chunk,
         distance
     )
-
 
     if document_id:
         query_result = query_result.filter(
             Chunk.document_id == document_id
         )
 
-
     print("TOP_K:", limit)
-
 
     results = (
         query_result
@@ -45,39 +41,75 @@ def retrieve_relevant_chunks(
         .all()
     )
 
-
     print("DOCUMENT ID:", document_id)
     print("RESULT COUNT:", len(results))
 
-
     chunks = []
 
+    # -----------------------------
+    # Detect whether this is a code-related query
+    # -----------------------------
 
-    SIMILARITY_THRESHOLD = 0.45
+    code_keywords = (
+        "def ",
+        "class ",
+        "import ",
+        "#include",
+        "function ",
+        "const ",
+        "let ",
+        "var ",
+        "public class",
+        "interface ",
+    )
 
+    is_code_query = any(
+        keyword in query.lower()
+        for keyword in (
+            "function",
+            "class",
+            "method",
+            "api",
+            "endpoint",
+            "variable",
+            "code",
+            "python",
+            "react",
+            "javascript",
+            "typescript",
+            "css",
+            "html",
+            "sql",
+        )
+    )
+
+    contains_code = any(
+        any(keyword in chunk.content for keyword in code_keywords)
+        for chunk, _ in results
+    )
+
+    SIMILARITY_THRESHOLD = (
+        0.35
+        if (is_code_query or contains_code)
+        else 0.45
+    )
 
     for chunk, distance_value in results:
 
         similarity = 1 - distance_value
-
 
         print("----------------")
         print("Distance:", distance_value)
         print("Similarity:", similarity)
         print("Chunk:", chunk.content[:200])
 
-
         if similarity >= SIMILARITY_THRESHOLD:
 
             chunks.append(chunk.content)
 
-
-
     print("FINAL CHUNKS SENT:", len(chunks))
 
-
     return chunks
-
 
 
 # -----------------------------
@@ -89,7 +121,6 @@ def get_document_text(
     document_id,
 ):
 
-
     chunks = (
         db.query(Chunk)
         .filter(Chunk.document_id == document_id)
@@ -97,11 +128,8 @@ def get_document_text(
         .all()
     )
 
-
     if not chunks:
-
         return ""
-
 
     return "\n\n".join(
         chunk.content
