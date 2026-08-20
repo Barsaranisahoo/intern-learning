@@ -91,6 +91,8 @@ Groq LLM Generation
   v
 Final AI Response
 
+```
+
 # ✨ Features
 
 - Multi-format file upload
