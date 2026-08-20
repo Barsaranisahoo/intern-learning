@@ -10,7 +10,7 @@ The final capstone project, **Smart Support Assistant**, is a full-stack AI appl
 
 # 📚 Internship Focus
 
-### Phase 1 — Software Development Foundations
+## Phase 1 — Software Development Foundations
 
 - Python Programming
 - Git & GitHub Workflow
@@ -19,7 +19,7 @@ The final capstone project, **Smart Support Assistant**, is a full-stack AI appl
 - FastAPI APIs
 - Docker Containerization
 
-### Phase 2 — AI Application Development
+## Phase 2 — AI Application Development
 
 - Prompt Engineering
 - LLM API Integration
@@ -27,7 +27,7 @@ The final capstone project, **Smart Support Assistant**, is a full-stack AI appl
 - Vector Search
 - Retrieval-Augmented Generation
 
-### Phase 3 — Smart Support Assistant Capstone
+## Phase 3 — Smart Support Assistant Capstone
 
 - Full-stack AI application development
 - Multi-format document processing
@@ -91,40 +91,45 @@ Groq LLM Generation
   v
 Final AI Response
 
-# ✨ Features
-
-- PDF and TXT  document upload
-- Automatic text extraction
-- Document chunking
-- Semantic search using embeddings
-- RAG-based question answering
-- Conversation history
-- Document history
-- AI document summarization
-- Prompt injection evaluation
-- Dockerized full-stack setup
-# 🧪 Evaluation
+✨ Features
+Multi-format file upload
+Automatic file-type detection
+Automatic content extraction
+Document processing and chunking
+Semantic search using embeddings
+RAG-based question answering
+Context-aware AI conversations
+Conversation history and memory
+Document history
+AI document summarization
+Image upload and AI image analysis
+AI-assisted code generation
+Suggested questions
+Prompt injection evaluation
+Dockerized full-stack setup
+🧪 Evaluation
 
 The project includes an automated evaluation setup to test answer quality, retrieval behavior, and prompt injection handling.
 
 Detailed evaluation results:
 
-➡️ [View Evaluation Report](backend/Eval/EVAL.md)
+➡️ View Evaluation Report
 
-# 📖 Learning Journey
+📖 Learning Journey
 
 The complete day-by-day progress, tasks, implementations, and key learnings from my AI Internship are documented here:
 
-➡️ [View Detailed Learning Journey](docs/LEARNING_JOURNEY.md)
+➡️ View Detailed Learning Journey
 
-# 🏗️ System Architecture
+🏗️ System Architecture
 
-A detailed overview of the Smart Support Assistant architecture, including the system workflow, RAG pipeline, backend, frontend, database design, and API interactions, is available here:
+A detailed overview of the Smart Support Assistant architecture, including the system workflow, RAG pipeline, backend, frontend, database design, and API interactions is available here:
 
-➡️ [View System Architecture](ARCHITECTURE.md)
+➡️ View System Architecture
 
-## 🎥 Demo Video
+🎥 Demo Video
 
 Watch the project demonstration here:
 
-https://drive.google.com/file/d/1O9gWIRUZxgm-7nTbqvTZ4uiF2YuP4UF6/view?usp=sharing
+➡️ 
+View Smart Support Assistant Demo
