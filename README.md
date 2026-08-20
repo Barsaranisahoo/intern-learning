@@ -91,44 +91,40 @@ Groq LLM Generation
   v
 Final AI Response
 
-✨ Features
-Multi-format file upload
-Automatic file-type detection
-Automatic content extraction
-Document processing and chunking
-Semantic search using embeddings
-RAG-based question answering
-Context-aware AI conversations
-Conversation history and memory
-Document history
-AI document summarization
-Image upload and AI image analysis
-AI-assisted code generation
-Suggested questions
-Prompt injection evaluation
-Dockerized full-stack setup
-🧪 Evaluation
+# ✨ Features
+
+- PDF and TXT  document upload
+- Automatic text extraction
+- Document chunking
+- Semantic search using embeddings
+- RAG-based question answering
+- Conversation history
+- Document history
+- AI document summarization
+- Prompt injection evaluation
+- Dockerized full-stack setup
+# 🧪 Evaluation
 
 The project includes an automated evaluation setup to test answer quality, retrieval behavior, and prompt injection handling.
 
 Detailed evaluation results:
 
-➡️ View Evaluation Report
+➡️ [View Evaluation Report](backend/Eval/EVAL.md)
 
-📖 Learning Journey
+# 📖 Learning Journey
 
 The complete day-by-day progress, tasks, implementations, and key learnings from my AI Internship are documented here:
 
-➡️ View Detailed Learning Journey
+➡️ [View Detailed Learning Journey](docs/LEARNING_JOURNEY.md)
 
-🏗️ System Architecture
+# 🏗️ System Architecture
 
 A detailed overview of the Smart Support Assistant architecture, including the system workflow, RAG pipeline, backend, frontend, database design, and API interactions, is available here:
 
-➡️  View System Architecture
+➡️ [View System Architecture](ARCHITECTURE.md)
 
-🎥 Demo Video
+## 🎥 Demo Video
 
 Watch the project demonstration here:
 
-▶️https://drive.google.com/file/d/1O9gWIRUZxgm-7nTbqvTZ4uiF2YuP4UF6/view?usp=sharing
+https://drive.google.com/file/d/1O9gWIRUZxgm-7nTbqvTZ4uiF2YuP4UF6/view?usp=sharing
