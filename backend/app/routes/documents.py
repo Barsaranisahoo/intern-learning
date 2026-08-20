@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.schemas import UploadResponse
 from ..database import get_db
-from ..models import Conversation, Message, Document, Chunk, Image
+from ..models import Workspace, Conversation, Message, Document, Chunk, Image
 from ..gemini_service import create_embedding
 from ..llm import generate_suggested_questions
 from ..services.file_extractor import extract_text
@@ -26,6 +26,8 @@ class GenerateQuestionsRequest(BaseModel):
 async def upload_document(
     file: UploadFile = File(...),
     conversation_id: str | None = Form(None),
+    workspace_id: str | None = Form(None),
+    workspace_name: str | None = Form(None),
     db: Session = Depends(get_db),
 ):
 
@@ -90,16 +92,56 @@ async def upload_document(
 
         db.commit()
 
-    # Create new document
+    # ---------------- Workspace ----------------
+
+    workspace = None
+
+    if workspace_id:
+
+        try:
+
+            workspace = (
+                db.query(Workspace)
+                .filter(
+                    Workspace.id == UUID(workspace_id)
+                )
+                .first()
+            )
+
+        except Exception:
+
+            workspace = None
+
+    if workspace is None and workspace_name:
+
+        workspace = (
+            db.query(Workspace)
+            .filter(Workspace.name == workspace_name)
+            .first()
+    )
+
+        if workspace is None:
+          workspace = Workspace(
+            name=workspace_name
+        )
+
+        db.add(workspace)
+        db.commit()
+        db.refresh(workspace)
+
+       # ---------------- Create Document ----------------
+
     document = Document(
-        filename=file.filename
+        filename=file.filename,
+        workspace_id=workspace.id if workspace else None
     )
 
     db.add(document)
     db.commit()
     db.refresh(document)
 
-    # Save chunks
+    # ---------------- Save Chunks ----------------
+
     for index, chunk_text in enumerate(chunks):
 
         embedding = create_embedding(chunk_text)
@@ -115,7 +157,8 @@ async def upload_document(
 
     db.commit()
 
-    # Attach document to existing conversation if provided
+    # ---------------- Conversation ----------------
+
     conversation = None
 
     if (
@@ -129,16 +172,20 @@ async def upload_document(
 
             conversation = (
                 db.query(Conversation)
-                .filter(Conversation.id == conversation_uuid)
+                .filter(
+                    Conversation.id == conversation_uuid
+                )
                 .first()
             )
 
         except ValueError:
+
             conversation = None
 
     if conversation:
 
         conversation.document_id = document.id
+        conversation.workspace_id = workspace.id if workspace else None
 
         db.commit()
         db.refresh(conversation)
@@ -146,12 +193,15 @@ async def upload_document(
     else:
 
         conversation = Conversation(
-            document_id=document.id
+            document_id=document.id,
+            workspace_id=workspace.id if workspace else None
         )
 
         db.add(conversation)
         db.commit()
         db.refresh(conversation)
+
+    # ---------------- Initial Messages ----------------
 
     user_message = Message(
         conversation_id=conversation.id,
@@ -170,13 +220,14 @@ async def upload_document(
     db.commit()
 
     return UploadResponse(
-        message="File uploaded successfully",
-        document_id=document.id,
-        conversation_id=conversation.id,
-        filename=file.filename,
-        chunks_saved=len(chunks),
-        suggested_questions=[]
-    )
+    message="File uploaded successfully",
+    document_id=document.id,
+    conversation_id=conversation.id,
+    workspace_id=workspace.id if workspace else None,
+    filename=file.filename,
+    chunks_saved=len(chunks),
+    suggested_questions=[]
+)
 
 @router.post("/generate-questions")
 def generate_document_questions(

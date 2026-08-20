@@ -7,6 +7,38 @@ from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 from .database import Base
 
+class Workspace(Base):
+
+    __tablename__ = "workspaces"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+
+    name = Column(
+        String,
+        nullable=False,
+        unique=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    documents = relationship(
+        "Document",
+        back_populates="workspace",
+        cascade="all, delete"
+    )
+
+    conversations = relationship(
+        "Conversation",
+        back_populates="workspace",
+        cascade="all, delete"
+    )
 
 class Conversation(Base):
 
@@ -33,6 +65,11 @@ class Conversation(Base):
         ForeignKey("documents.id"),
         nullable=True
     )
+    workspace_id = Column(
+       UUID(as_uuid=True),
+       ForeignKey("workspaces.id"),
+       nullable=True
+)
 
     messages = relationship(
         "Message",
@@ -50,6 +87,10 @@ class Conversation(Base):
         "Document",
         back_populates="conversations"
     )
+    workspace = relationship(
+       "Workspace",
+        back_populates="conversations"
+)
 
 
 class Message(Base):
@@ -122,7 +163,7 @@ class Image(Base):
 
     conversation = relationship(
         "Conversation",
-        back_populates="images"
+         back_populates="images"
     )
 
 
@@ -146,6 +187,11 @@ class Document(Base):
         DateTime,
         default=datetime.utcnow
     )
+    workspace_id = Column(
+       UUID(as_uuid=True),
+       ForeignKey("workspaces.id"),
+       nullable=True
+)
 
     chunks = relationship(
         "Chunk",
@@ -157,6 +203,10 @@ class Document(Base):
         "Conversation",
         back_populates="document"
     )
+    workspace = relationship(
+      "Workspace",
+      back_populates="documents"
+)
 
 
 class Chunk(Base):

@@ -5,10 +5,17 @@ import Chat from "./components/Chat";
 import ChatHistory from "./components/ChatHistory";
 import AIAssistant from "./components/AIAssistant";
 
+
 function App() {
   const [selectedConversation, setSelectedConversation] =
     useState<string | null>(null);
 
+  const [workspaceId, setWorkspaceId] =
+    useState<string | null>(null);  
+
+  const [workspaceName, setWorkspaceName] =
+     useState<string>("New Workspace");
+  
   const [historyRefresh, setHistoryRefresh] =
     useState(0);
 
@@ -20,8 +27,10 @@ function App() {
   };
 
   const startNewChat = () => {
-    setSelectedConversation(null);
-  };
+     setSelectedConversation(null);
+
+  // Keep current workspace
+};
   const [showHistory, setShowHistory] = useState(true);
   console.log("APP conversation =", selectedConversation);
 
@@ -52,11 +61,16 @@ function App() {
         + New Chat
       </button>
 
-      <div className="history-scroll">
+      <div className="history-scroll"> 
+
   <ChatHistory
-    onSelectConversation={setSelectedConversation}
-    refresh={historyRefresh}
-  />
+  refresh={historyRefresh}
+  onSelectConversation={setSelectedConversation}
+  onSelectWorkspace={(id, name) => {
+    setWorkspaceId(id);
+    setWorkspaceName(name);
+  }}
+/>
 </div>
     </>
   ) : (
@@ -83,10 +97,13 @@ function App() {
 
       <main className="chat-area">
         <Chat
-          conversationId={selectedConversation}
-          setConversationId={setSelectedConversation}
-          onHistoryUpdate={refreshHistory}
-        />
+  conversationId={selectedConversation}
+  setConversationId={setSelectedConversation}
+  workspaceId={workspaceId}
+  setWorkspaceId={setWorkspaceId}
+  workspaceName={workspaceName}
+  onHistoryUpdate={refreshHistory}
+/>
 
         {/* Floating Sparkle Button */}
         <button

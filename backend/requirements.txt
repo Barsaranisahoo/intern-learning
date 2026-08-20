@@ -63,3 +63,4 @@ beautifulsoup4
 markdown
 odfpy
 striprtf
+openai

@@ -2,9 +2,8 @@ import os
 
 from sqlalchemy.orm import Session
 
-from app.models import Chunk
+from app.models import Chunk, Document
 from app.gemini_service import create_embedding
-
 
 TOP_K = int(os.getenv("TOP_K", 5))
 
@@ -13,6 +12,7 @@ def retrieve_relevant_chunks(
     query: str,
     db: Session,
     document_id=None,
+    workspace_id=None,
     limit: int = TOP_K
 ):
 
@@ -22,33 +22,59 @@ def retrieve_relevant_chunks(
         query_embedding
     ).label("distance")
 
-    query_result = db.query(
-        Chunk,
-        distance
+    query_result = (
+        db.query(
+            Chunk,
+            Document.filename,
+            distance
+        )
+        .join(
+            Document,
+            Chunk.document_id == Document.id
+        )
     )
 
-    if document_id:
+    # -----------------------------
+    # Workspace Search (Multi-file)
+    # -----------------------------
+
+    if workspace_id:
+
+        query_result = query_result.filter(
+            Document.workspace_id == workspace_id
+        )
+
+    elif document_id:
+
         query_result = query_result.filter(
             Chunk.document_id == document_id
         )
 
     print("TOP_K:", limit)
+    print("WORKSPACE:", workspace_id)
+    print("DOCUMENT:", document_id)
 
-    results = (
+    if workspace_id:
+
+      results = (
+        query_result
+        .order_by(distance)
+        .limit(limit * 2)
+        .all()
+    )
+
+    else:
+
+       results = (
         query_result
         .order_by(distance)
         .limit(limit)
         .all()
     )
 
-    print("DOCUMENT ID:", document_id)
     print("RESULT COUNT:", len(results))
 
     chunks = []
-
-    # -----------------------------
-    # Detect whether this is a code-related query
-    # -----------------------------
 
     code_keywords = (
         "def ",
@@ -85,7 +111,7 @@ def retrieve_relevant_chunks(
 
     contains_code = any(
         any(keyword in chunk.content for keyword in code_keywords)
-        for chunk, _ in results
+        for chunk, _, _ in results
     )
 
     SIMILARITY_THRESHOLD = (
@@ -94,18 +120,24 @@ def retrieve_relevant_chunks(
         else 0.45
     )
 
-    for chunk, distance_value in results:
+    for chunk, filename, distance_value in results:
 
         similarity = 1 - distance_value
 
         print("----------------")
+        print("File:", filename)
         print("Distance:", distance_value)
         print("Similarity:", similarity)
         print("Chunk:", chunk.content[:200])
 
         if similarity >= SIMILARITY_THRESHOLD:
 
-            chunks.append(chunk.content)
+            chunks.append(
+                {
+                    "filename": filename,
+                    "content": chunk.content
+                }
+            )
 
     print("FINAL CHUNKS SENT:", len(chunks))
 

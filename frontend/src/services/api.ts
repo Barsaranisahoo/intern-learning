@@ -1,6 +1,7 @@
 import type {
   ChatRequest,
   ChatResponse,
+  UploadResponse,
   ImageAnalysisResponse,
 } from "../types/chat";
 
@@ -17,8 +18,8 @@ export async function sendMessage(
     `${API_URL}/chat`,
     {
       method: "POST",
-      headers:{
-        "Content-Type":"application/json",
+      headers: {
+        "Content-Type": "application/json",
       },
 
       body: JSON.stringify(request),
@@ -26,7 +27,7 @@ export async function sendMessage(
   );
 
 
-  if(!response.ok){
+  if (!response.ok) {
     throw new Error("Failed to connect to backend");
   }
 
@@ -37,18 +38,54 @@ export async function sendMessage(
 
 
 
-
+// Upload Document API
 export async function uploadDocument(
   file: File,
-  conversationId?: string | null
-) {
+  conversationId?: string | null,
+  workspaceId?: string | null,
+  workspaceName?: string | null
+): Promise<UploadResponse> {
+
+
   const formData = new FormData();
 
-  formData.append("file", file);
+
+  formData.append(
+    "file",
+    file
+  );
+
 
   if (conversationId) {
-    formData.append("conversation_id", conversationId);
+
+    formData.append(
+      "conversation_id",
+      conversationId
+    );
+
   }
+
+
+  if (workspaceId) {
+
+    formData.append(
+      "workspace_id",
+      workspaceId
+    );
+
+  }
+
+
+  if (workspaceName) {
+
+    formData.append(
+      "workspace_name",
+      workspaceName
+    );
+
+  }
+
+
 
   const response = await fetch(
     `${API_URL}/documents/upload`,
@@ -58,28 +95,32 @@ export async function uploadDocument(
     }
   );
 
+
   if (!response.ok) {
-    throw new Error("Upload failed");
+
+    throw new Error(
+      "Upload failed"
+    );
+
   }
 
+
   return response.json();
+
 }
 
 
 
-
-
-
-
 // Get uploaded documents API
-export async function getDocuments(){
+export async function getDocuments() {
+
 
   const response = await fetch(
     `${API_URL}/documents/`
   );
 
 
-  if(!response.ok){
+  if (!response.ok) {
 
     throw new Error(
       "Failed to fetch documents"
@@ -94,17 +135,16 @@ export async function getDocuments(){
 
 
 
-
-
 // Get chat history list API
-export async function getConversations(){
+export async function getConversations() {
+
 
   const response = await fetch(
     `${API_URL}/conversations`
   );
 
 
-  if(!response.ok){
+  if (!response.ok) {
 
     throw new Error(
       "Failed to fetch conversations"
@@ -119,19 +159,18 @@ export async function getConversations(){
 
 
 
-
-
 // Get single conversation messages API
 export async function getConversation(
   conversationId: string
-){
+) {
+
 
   const response = await fetch(
     `${API_URL}/conversation/${conversationId}`
   );
 
 
-  if(!response.ok){
+  if (!response.ok) {
 
     throw new Error(
       "Failed to fetch conversation"
@@ -143,14 +182,19 @@ export async function getConversation(
   return response.json();
 
 }
+
+
+
 // Get conversation by document
 export async function getConversationByDocument(
   documentId: string
 ) {
 
+
   const response = await fetch(
     `${API_URL}/documents/${documentId}/conversation`
   );
+
 
   if (!response.ok) {
 
@@ -160,14 +204,20 @@ export async function getConversationByDocument(
 
   }
 
+
   return response.json();
 
 }
 
+
+
+// Summarize Document API
 export async function summarizeDocument(
   documentId: string,
   conversationId: string
-) { 
+) {
+
+
   const response = await fetch(
     `${API_URL}/features/summarize?document_id=${documentId}&conversation_id=${conversationId}`,
     {
@@ -175,12 +225,22 @@ export async function summarizeDocument(
     }
   );
 
+
   if (!response.ok) {
-    throw new Error("Failed to summarize document");
+
+    throw new Error(
+      "Failed to summarize document"
+    );
+
   }
 
+
   return response.json();
+
 }
+
+
+
 // -----------------------------
 // Image Analysis API
 // -----------------------------
@@ -189,16 +249,35 @@ export async function analyzeImage(
   file: File,
   prompt: string,
   conversationId?: string | null
-) {
+): Promise<ImageAnalysisResponse> {
+
 
   const formData = new FormData();
 
-  formData.append("file", file);
-  formData.append("prompt", prompt);
+
+  formData.append(
+    "file",
+    file
+  );
+
+
+  formData.append(
+    "prompt",
+    prompt
+  );
+
+
 
   if (conversationId) {
-    formData.append("conversation_id", conversationId);
+
+    formData.append(
+      "conversation_id",
+      conversationId
+    );
+
   }
+
+
 
   const response = await fetch(
     `${API_URL}/images/analyze`,
@@ -208,36 +287,62 @@ export async function analyzeImage(
     }
   );
 
+
+
   if (!response.ok) {
-    throw new Error("Image analysis failed");
+
+    throw new Error(
+      "Image analysis failed"
+    );
+
   }
 
-  return response.json() as Promise<ImageAnalysisResponse>;
+
+
+  return response.json();
+
 }
+
+
+
 // -----------------------------
 // Generate Suggested Questions
 // -----------------------------
+
 export async function generateSuggestedQuestions(
   documentId: string
 ) {
+
+
   const response = await fetch(
     `${API_URL}/documents/generate-questions`,
     {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json",
       },
+
+
       body: JSON.stringify({
         document_id: documentId,
       }),
+
     }
   );
 
+
+
   if (!response.ok) {
+
     throw new Error(
       "Failed to generate suggested questions"
     );
+
   }
 
+
+
   return response.json();
+
 }

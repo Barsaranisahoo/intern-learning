@@ -8,6 +8,7 @@ class ChatRequest(BaseModel):
     message: str
     conversation_id: Optional[UUID] = None
     document_id: Optional[UUID] = None
+    workspace_id: Optional[UUID] = None
     strict_document: bool = False
 
 
@@ -27,6 +28,7 @@ class UploadResponse(BaseModel):
     message: str
     document_id: UUID
     conversation_id: UUID
+    workspace_id: UUID | None = None
     filename: str
     chunks_saved: int
     suggested_questions: list[str] = []

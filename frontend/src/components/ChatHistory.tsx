@@ -7,15 +7,22 @@ interface Conversation {
   created_at: string;
   document_id: string | null;
   document_name: string | null;
+  workspace_id: string | null;
+  workspace_name: string | null;
 }
 
 interface Props {
   onSelectConversation: (id: string) => void;
+  onSelectWorkspace: (
+    workspaceId: string | null,
+    workspaceName: string
+  ) => void;
   refresh: number;
 }
 
 export default function ChatHistory({
   onSelectConversation,
+  onSelectWorkspace,
   refresh,
 }: Props) {
 
@@ -87,9 +94,14 @@ export default function ChatHistory({
           <div
             key={chat.id}
             className="document-item"
-            onClick={() =>
-              onSelectConversation(chat.id)
-            }
+            onClick={() => {
+  onSelectConversation(chat.id);
+
+  onSelectWorkspace(
+    chat.workspace_id,
+    chat.workspace_name ?? "Workspace"
+  );
+}}
           >
 
             {chat.document_name ? (

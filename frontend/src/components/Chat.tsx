@@ -15,11 +15,17 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { SyntaxHighlighterProps } from "react-syntax-highlighter";
+ 
 interface ChatProps {
   conversationId: string | null;
   setConversationId: (id: string | null) => void;
+
+  workspaceId: string | null;
+  setWorkspaceId: (id: string | null) => void;
+
+  workspaceName: string;
+
   onHistoryUpdate: () => void;
-  
 }
 function fixMarkdownCode(text: string) {
   return text.replace(
@@ -31,7 +37,10 @@ function fixMarkdownCode(text: string) {
 export default function Chat({
   conversationId,
   setConversationId,
-  onHistoryUpdate
+  workspaceId,
+  setWorkspaceId,
+  workspaceName,
+  onHistoryUpdate,
 }: ChatProps) {
 
   const [messages, setMessages] =
@@ -53,6 +62,7 @@ export default function Chat({
   const [documentId, setDocumentId] =
   useState<string | null>(null);
 
+
   const [summarizing, setSummarizing] =
   useState(false);
 
@@ -70,6 +80,7 @@ export default function Chat({
 
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [generatingQuestions, setGeneratingQuestions] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState<number | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [searchText, setSearchText] = useState("");
@@ -85,6 +96,7 @@ const [showSelectionMenu, setShowSelectionMenu] =
 const [theme, setTheme] = useState(
   localStorage.getItem("theme") || "dark"
 );
+
 
   // Load previous conversation
   useEffect(() => {
@@ -109,6 +121,9 @@ if (!conversationId) {
           conversationId
         );
        setDocumentId(data.document_id ?? null);
+       if (data.workspace_id) {
+          setWorkspaceId(data.workspace_id);
+     }
 
 
         setMessages(
@@ -327,16 +342,12 @@ setSuggestedQuestions([]);
 
 
 
-      const response = await sendMessage({
-
-  message: userText,
-
-  conversation_id: conversationId,
-
-  document_id: documentId,
-
-  strict_document: !!documentId
-
+     const response = await sendMessage({
+       message: userText,
+       conversation_id: conversationId,
+       document_id : documentId,
+       workspace_id: workspaceId,
+       strict_document: !!documentId,
 });
 
 // Store new conversation id
@@ -409,8 +420,10 @@ const handleUpload = async (
 
     const result = await uploadDocument(
       file,
-      conversationId
-    );
+      conversationId,
+      workspaceId,
+      workspaceId ? undefined : workspaceName
+);
 
     console.log(
       "UPLOAD RESPONSE:",
@@ -428,11 +441,15 @@ const handleUpload = async (
 
     }
 
-    setDocumentId(result.document_id);
+   setDocumentId(result.document_id);
 
-    if (!conversationId) {
-      setConversationId(result.conversation_id);
-    }
+if (result.workspace_id) {
+  setWorkspaceId(result.workspace_id);
+}
+
+if (!conversationId) {
+  setConversationId(result.conversation_id);
+}
 
     console.log(
       "STORED DOCUMENT ID:",
@@ -554,39 +571,97 @@ const handleSummarize = async () => {
 };
 const handleGenerateQuestions = async () => {
 
-  if (!documentId) return;
+  if (!documentId || generatingQuestions) {
+    return;
+  }
 
   try {
+
+    setGeneratingQuestions(true);
+
+    console.log(
+      "========== GENERATE QUESTIONS =========="
+    );
+
+    console.log(
+      "DOCUMENT ID:",
+      documentId
+    );
 
     const result = await generateSuggestedQuestions(
       documentId
     );
 
+    console.log(
+      "SUGGESTION API RESPONSE:",
+      result
+    );
+
     const questions =
       result.suggested_questions ?? [];
 
-    setSuggestedQuestions(questions);
+    if (questions.length === 0) {
 
-    // Show only if there are questions
-    setShowSuggestions(questions.length > 0);
+      console.log(
+        "No questions returned from backend."
+      );
 
-  } catch {
+      setShowSuggestions(false);
 
-    setSuggestedQuestions([]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "I couldn't generate questions right now. Please try again.",
+          created_at:
+            new Date().toISOString(),
+        },
+      ]);
+
+      return;
+    }
+
+    /*
+     * Remove duplicates when generating
+     * additional questions.
+     */
+    setSuggestedQuestions((previous) => {
+
+      const combined = [
+        ...previous,
+        ...questions,
+      ];
+
+      return [...new Set(combined)].slice(0, 12);
+
+    });
+
+    setShowSuggestions(true);
+
+  } catch (error) {
+
+    console.log(
+      "GENERATE QUESTIONS ERROR:",
+      error
+    );
+
     setShowSuggestions(false);
 
     setMessages((prev) => [
-
       ...prev,
-
       {
         role: "assistant",
         content:
-          "Failed to generate suggested questions.",
-        created_at: new Date().toISOString(),
+          "Failed to generate suggested questions. Please try again.",
+        created_at:
+          new Date().toISOString(),
       },
-
     ]);
+
+  } finally {
+
+    setGeneratingQuestions(false);
 
   }
 
@@ -611,6 +686,7 @@ const askSuggestedQuestion = async (question: string) => {
   message: question,
   conversation_id: conversationId,
   document_id: documentId,
+  workspace_id: workspaceId,
   strict_document: !!documentId,
 });
 
@@ -984,11 +1060,14 @@ const typeMessage = async (
   <div className="suggested-questions">
 
     <button
-      className="suggestion-more"
-      onClick={handleGenerateQuestions}
+       className="suggestion-more"
+       onClick={handleGenerateQuestions}
+       disabled={generatingQuestions}
     >
-      ✨ Generate Suggested Questions
-    </button>
+     {generatingQuestions
+    ? "⏳ Generating..."
+    : "✨ Generate Suggested Questions"}
+</button>
 
     {showSuggestions && suggestedQuestions.length > 0 && (
       <>
